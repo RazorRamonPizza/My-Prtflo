@@ -4,7 +4,6 @@ import Lightbox from 'yet-another-react-lightbox';
 import 'yet-another-react-lightbox/styles.css';
 import { motion } from 'framer-motion';
 
-// ИСПРАВЛЕНИЕ 1: Импортируем данные под именем rawPortfolioData
 import rawPortfolioData from '../data/portfolio.json';
 
 function Header() {
@@ -48,6 +47,8 @@ function Gallery({ categories, works, onWorkClick }) {
                 className="w-full h-full object-cover"
                 loading="lazy"
                 allow="autoplay"
+                // --- ИСПРАВЛЕНИЕ #1 ---
+                referrerPolicy="no-referrer"
               ></iframe>
             </div>
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent transition-all duration-300 flex items-end p-4">
@@ -86,9 +87,15 @@ export default function Home({ categories, works }) {
         slides={slides}
         styles={{ container: { backgroundColor: "rgba(10, 10, 10, .95)" } }}
         render={{
-            slide: ({ slide }) => (
-                slide.type === 'iframe' && <iframe className="w-full h-full" src={slide.src} allowFullScreen></iframe>
-            )
+          slide: ({ slide }) => (
+            slide.type === 'iframe' && <iframe
+              className="w-full h-full"
+              src={slide.src}
+              allowFullScreen
+              // --- ИСПРАВЛЕНИЕ #2 ---
+              referrerPolicy="no-referrer"
+            ></iframe>
+          )
         }}
       />
     </div>
@@ -96,19 +103,4 @@ export default function Home({ categories, works }) {
 }
 
 export async function getStaticProps() {
-  // ИСПРАВЛЕНИЕ 2: Используем правильное имя переменной rawPortfolioData
-  const allWorks = rawPortfolioData.map(work => ({
-    ...work,
-    previewUrl: `https://drive.google.com/file/d/${work.id}/preview`,
-    iframeUrl: `https://drive.google.com/file/d/${work.id}/preview`
-  }));
-
-  const categories = [...new Set(allWorks.map(work => work.category))].sort();
-
-  return {
-    props: {
-      categories,
-      works: allWorks,
-    },
-  };
-}
+  const allWorks = rawPortfolioData.flatMap(category =>
