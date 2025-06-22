@@ -42,7 +42,6 @@ function Gallery({ categories, works, onWorkClick }) {
             transition={{ duration: 0.6, delay: index * 0.08, ease: "easeOut" }}
           >
             <div className="aspect-w-1 aspect-h-1">
-              {/* --- ИЗМЕНЕНИЕ #1 --- */}
               <iframe
                 src={work.previewUrl}
                 title={work.title}
@@ -91,7 +90,6 @@ export default function Home({ categories, works }) {
         render={{
           slide: ({ slide }) => (
             slide.type === 'iframe' && (
-              // --- ИЗМЕНЕНИЕ #2 ---
               <iframe
                 className="w-full h-full"
                 src={slide.src}
