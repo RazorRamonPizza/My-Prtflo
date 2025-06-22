@@ -4,8 +4,10 @@ import Lightbox from 'yet-another-react-lightbox';
 import 'yet-another-react-lightbox/styles.css';
 import { motion } from 'framer-motion';
 
+// Данные импортируются из вашего JSON файла
 import rawPortfolioData from '../data/portfolio.json';
 
+// Компонент Header (без изменений)
 function Header() {
   return (
     <header className="mb-16 text-center">
@@ -15,6 +17,7 @@ function Header() {
   );
 }
 
+// Компонент Gallery (с добавленным referrerPolicy)
 function Gallery({ categories, works, onWorkClick }) {
   const [activeCategory, setActiveCategory] = useState('Все');
   const filteredWorks = activeCategory === 'Все' ? works : works.filter(work => work.category === activeCategory);
@@ -33,7 +36,7 @@ function Gallery({ categories, works, onWorkClick }) {
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {filteredWorks.map((work, index) => (
           <motion.div
-            key={work.id}
+            key={work.youtubeId || work.id} // Используем youtubeId как ключ
             className="group relative block w-full bg-black rounded-lg overflow-hidden cursor-pointer shadow-lg hover:shadow-2xl transition-shadow duration-300"
             onClick={() => onWorkClick(work)}
             initial={{ opacity: 0, y: 25 }}
@@ -46,9 +49,8 @@ function Gallery({ categories, works, onWorkClick }) {
                 src={work.previewUrl}
                 className="w-full h-full object-cover"
                 loading="lazy"
-                allow="autoplay"
-                // --- ИСПРАВЛЕНИЕ #1 ---
-                referrerPolicy="no-referrer"
+                allow="autoplay; encrypted-media; picture-in-picture"
+                referrerPolicy="no-referrer" // Атрибут для обхода блокировки
               ></iframe>
             </div>
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent transition-all duration-300 flex items-end p-4">
@@ -61,6 +63,7 @@ function Gallery({ categories, works, onWorkClick }) {
   );
 }
 
+// Компонент Home (с добавленным referrerPolicy в Lightbox)
 export default function Home({ categories, works }) {
   const [open, setOpen] = useState(false);
   const [slides, setSlides] = useState([]);
@@ -92,8 +95,7 @@ export default function Home({ categories, works }) {
               className="w-full h-full"
               src={slide.src}
               allowFullScreen
-              // --- ИСПРАВЛЕНИЕ #2 ---
-              referrerPolicy="no-referrer"
+              referrerPolicy="no-referrer" // Атрибут для обхода блокировки
             ></iframe>
           )
         }}
@@ -102,5 +104,23 @@ export default function Home({ categories, works }) {
   );
 }
 
+// Новая функция getStaticProps для работы с YouTube
 export async function getStaticProps() {
-  const allWorks = rawPortfolioData.flatMap(category =>
+  const allWorks = rawPortfolioData.flatMap(category => 
+    category.works.map(work => ({
+        ...work, // Копируем title, category, и youtubeId из JSON
+        // Создаем правильные URL для встраивания YouTube видео
+        previewUrl: `https://www.youtube.com/embed/${work.youtubeId}`,
+        iframeUrl: `https://www.youtube.com/embed/${work.youtubeId}`
+    }))
+  );
+
+  const categories = [...new Set(allWorks.map(work => work.category))].sort();
+
+  return {
+    props: {
+      categories,
+      works: allWorks,
+    },
+  };
+}
