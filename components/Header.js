@@ -2,7 +2,7 @@ export default function Header() {
   return (
     <header className="mb-12 text-center">
       <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-gray-900">
-        Roman Makarov
+        Roman Makarov!
       </h1>
       <p className="mt-3 text-lg md:text-xl text-gray-600">
         CGI Artist | 3D Motion Designer | VFX & Product Animation
