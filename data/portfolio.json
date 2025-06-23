@@ -3,6 +3,11 @@
     "category": "3D",
     "works": [
       {
+        "youtubeId": "gfNMBuwvORM",
+        "title": "Boat",
+        "category": "3D"
+      },
+      {
         "youtubeId": "B_APjYMAPt4",
         "title": "Globe ex",
         "category": "3D"
@@ -41,6 +46,11 @@
         "youtubeId": "WROEBA1FFo0",
         "title": "Glass sparcles",
         "category": "Houdini"
+      },
+      {
+        "youtubeId": "EzuyU648rOo",
+        "title": "pill dissolve",
+        "category": "Houdini"
       }
     ]
   },
@@ -61,6 +71,56 @@
         "youtubeId": "cD-TeXVx85E",
         "title": "Enigma",
         "category": "Logo Animation"
+      }
+    ]
+  },
+  {
+    "category": "Product",
+    "works": [
+      {
+        "youtubeId": "YeagyOZT5Sw",
+        "title": "Blu bath",
+        "category": "Product"
+      },
+      {
+        "youtubeId": "mY2sopcjIew",
+        "title": "Regenera",
+        "category": "Product"
+      },
+      {
+        "youtubeId": "mqmfMdfkG4Q",
+        "title": "Sheer Elite",
+        "category": "Product"
+      }
+    ]
+  },
+  {
+    "category": "VFX",
+    "works": [
+      {
+        "youtubeId": "LM2NrhTr4ak",
+        "title": "delorian",
+        "category": "VFX"
+      },
+      {
+        "youtubeId": "6Sw0wQ0qhNE",
+        "title": "Necklace S-KIN",
+        "category": "VFX"
+      },
+      {
+        "youtubeId": "EqhdKG2L2YE",
+        "title": "Pavilion",
+        "category": "VFX"
+      },
+      {
+        "youtubeId": "JJB7QDavXy8",
+        "title": "Totoro Scene1",
+        "category": "VFX"
+      },
+      {
+        "youtubeId": "olqBLLeGLlk",
+        "title": "Trem rabbits",
+        "category": "VFX"
       }
     ]
   }
