@@ -79,47 +79,4 @@ export default function Home({ categories, works }) {
       </Head>
       <main className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
         <Header />
-        <Gallery categories={categories} works={works} onWorkClick={openLightbox} />
-      </main>
-      <Lightbox
-        open={open}
-        close={() => setOpen(false)}
-        slides={slides}
-        styles={{ container: { backgroundColor: "rgba(10, 10, 10, .95)" } }}
-        render={{
-          slide: ({ slide }) => (
-            slide.type === 'iframe' && (
-              <iframe
-                className="w-full h-full"
-                src={slide.src}
-                title="Portfolio Work"
-                frameBorder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                allowFullScreen
-              ></iframe>
-            )
-          )
-        }}
-      />
-    </div>
-  );
-}
-
-export async function getStaticProps() {
-  const allWorks = rawPortfolioData.flatMap(category => 
-    category.works.map(work => ({
-        ...work,
-        previewUrl: `https://www.youtube.com/embed/${work.youtubeId}`,
-        iframeUrl: `https://www.youtube.com/embed/${work.youtubeId}`
-    }))
-  );
-
-  const categories = [...new Set(allWorks.map(work => work.category))].sort();
-
-  return {
-    props: {
-      categories,
-      works: allWorks,
-    },
-  };
-}
+        <Gallery cate
