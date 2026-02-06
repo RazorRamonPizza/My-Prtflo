@@ -1,91 +1,175 @@
+HTML
+
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>3D Product Portfolio</title>
+    <title>Amazon 3D AR Portfolio</title>
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
+    
     <style>
-        body { margin: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f4f4f4; color: #333; }
-        .container { display: flex; flex-direction: column; height: 100vh; }
-        
-        /* Главное окно просмотра */
-        model-viewer { width: 100%; flex-grow: 1; background-color: #ffffff; }
-
-        /* Список моделей (галерея) */
-        .gallery { 
-            display: flex; gap: 10px; padding: 15px; overflow-x: auto; 
-            background: #fff; border-top: 1px solid #ddd; height: 120px;
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #ffffff; /* Чисто белый фон как на Amazon */
+            font-family: 'Segoe UI', sans-serif;
+            overflow: hidden;
         }
-        .thumb { 
-            min-width: 100px; height: 90px; background: #eee; border-radius: 8px;
-            cursor: pointer; display: flex; align-items: center; justify-content: center;
-            font-size: 12px; text-align: center; border: 2px solid transparent; transition: 0.3s;
-        }
-        .thumb:hover { border-color: #007bff; }
-        .thumb.active { border-color: #007bff; background: #e7f1ff; }
 
-        .info { position: absolute; top: 10px; left: 10px; pointer-events: none; background: rgba(255,255,255,0.8); padding: 5px 12px; border-radius: 20px; font-size: 14px; }
+        .container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        /* Настройки самого 3D окна */
+        model-viewer {
+            width: 100%;
+            flex-grow: 1;
+            background-color: #ffffff;
+            --poster-color: #ffffff;
+            /* Улучшаем качество рендера */
+            --min-hotspot-opacity: 0;
+        }
+
+        /* Кнопка AR (в стиле Amazon) */
+        #ar-button {
+            background-image: url(https://modelviewer.dev/assets/ic_view_in_ar_new_googblue_48dp.png);
+            background-repeat: no-repeat;
+            background-size: 20px 20px;
+            background-position: 12px 50%;
+            background-color: #fff;
+            color: #4285f4;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            white-space: nowrap;
+            bottom: 132px;
+            padding: 0px 16px 0px 40px;
+            font-family: Roboto Regular, Helvetica Neue, sans-serif;
+            font-size: 14px;
+            color: #4285f4;
+            height: 36px;
+            line-height: 36px;
+            border-radius: 18px;
+            border: 1px solid #DADCE0;
+        }
+
+        /* Галерея внизу */
+        .gallery {
+            height: 100px;
+            display: flex;
+            gap: 15px;
+            padding: 10px 20px;
+            background: #f8f8f8;
+            border-top: 1px solid #eee;
+            overflow-x: auto;
+            align-items: center;
+        }
+
+        .thumb {
+            min-width: 80px;
+            height: 60px;
+            background: #fff;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            text-align: center;
+            padding: 5px;
+            transition: all 0.2s;
+        }
+
+        .thumb:hover { border-color: #ff9900; } /* Цвет Amazon */
+        .thumb.active { border-color: #ff9900; background: #fffcf5; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+
+        .model-title {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(255,255,255,0.8);
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 14px;
+            pointer-events: none;
+        }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <div class="info">Model: <span id="model-name">Loading...</span></div>
-    
-    <model-viewer id="main-viewer" ar ar-modes="webxr scene-viewer quick-look" camera-controls shadow-intensity="1" auto-rotate>
-        <button slot="ar-button" style="background-color: white; border-radius: 4px; border: none; position: absolute; top: 16px; right: 16px; padding: 10px;">
-            👋 View in AR
+    <div class="model-title" id="display-name">Загрузка...</div>
+
+    <model-viewer 
+        id="main-viewer"
+        src="models/test.glb" 
+        environment-image="textures/studio_small_03_1k.exr" 
+        exposure="1.2" 
+        shadow-intensity="1.5" 
+        shadow-softness="0.8"
+        camera-controls 
+        auto-rotate 
+        ar 
+        ar-modes="webxr scene-viewer quick-look">
+        
+        <button slot="ar-button" id="ar-button">
+            Посмотреть в комнате (AR)
         </button>
     </model-viewer>
 
-    <div class="gallery" id="gallery">
+    <div class="gallery" id="gallery-container">
         </div>
 </div>
 
 <script>
-    // 1. СПИСОК ТВОИХ МОДЕЛЕЙ (просто добавляй новые сюда)
-    const models = [
-        { name: "Test Model", file: "test.glb" },
-        { name: "Ampoule", file: "ampoule.glb" },
-        { name: "Syringe", file: "syringe.glb" }
+    // 1. НАСТРОЙКА ТВОИХ МОДЕЛЕЙ
+    // Просто добавляй сюда новые файлы, когда закинешь их в папку models
+    const myModels = [
+        { name: "Тестовая модель", file: "test.glb" },
+        { name: "Ампула Вакцины", file: "ampoule.glb" },
+        { name: "Шприц", file: "syringe.glb" }
     ];
 
     const viewer = document.getElementById('main-viewer');
-    const modelNameDisplay = document.getElementById('model-name');
-    const gallery = document.getElementById('gallery');
+    const nameLabel = document.getElementById('display-name');
+    const gallery = document.getElementById('gallery-container');
 
-    // Функция смены модели
-    function setModel(modelFile, modelName) {
-        viewer.src = modelFile;
-        viewer.iosSrc = modelFile;
-        modelNameDisplay.textContent = modelName;
-        
-        // Обновляем активный класс в галерее
+    // Функция переключения модели
+    function switchModel(fileName, displayName, element) {
+        const fullPath = "models/" + fileName;
+        viewer.src = fullPath;
+        nameLabel.textContent = displayName;
+
+        // Визуальное выделение в галерее
         document.querySelectorAll('.thumb').forEach(t => t.classList.remove('active'));
-        const activeThumb = Array.from(document.querySelectorAll('.thumb')).find(t => t.textContent === modelName);
-        if (activeThumb) activeThumb.classList.add('active');
+        if (element) element.classList.add('active');
     }
 
-    // Создаем кнопки в галерее
-    models.forEach(m => {
-        const thumb = document.createElement('div');
-        thumb.className = 'thumb';
-        thumb.textContent = m.name;
-        thumb.onclick = () => setModel(m.file, m.name);
-        gallery.appendChild(thumb);
+    // Создаем кнопки галереи
+    myModels.forEach((m, index) => {
+        const btn = document.createElement('div');
+        btn.className = 'thumb';
+        if (index === 0) btn.classList.add('active'); // Выделяем первую
+        btn.innerHTML = `<div>${m.name}</div>`;
+        btn.onclick = () => switchModel(m.file, m.name, btn);
+        gallery.appendChild(btn);
     });
 
-    // 2. ЛОГИКА ДЛЯ QR-КОДОВ (Параметры в ссылке)
-    // Если ссылка вида: ...index.html?model=ampoule.glb
-    const urlParams = new URLSearchParams(window.location.search);
-    const modelParam = urlParams.get('model');
-
-    if (modelParam) {
-        setModel(modelParam, modelParam);
+    // 2. ЛОГИКА ДЛЯ QR-КОДОВ
+    // Если ссылка содержит ?model=name.glb, загружаем её сразу
+    const params = new URLSearchParams(window.location.search);
+    const modelFromUrl = params.get('model');
+    
+    if (modelFromUrl) {
+        switchModel(modelFromUrl, modelFromUrl, null);
     } else {
-        // По умолчанию загружаем первую из списка
-        setModel(models[0].file, models[0].name);
+        // Загружаем первую из списка по умолчанию
+        switchModel(myModels[0].file, myModels[0].name, null);
     }
 </script>
 
