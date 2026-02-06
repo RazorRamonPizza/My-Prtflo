@@ -4,22 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Amazon 3D Portfolio</title>
-    
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
     
     <style>
-        /* Сброс отступов и белый фон Amazon */
-        body { margin: 0; padding: 0; background-color: #ffffff; font-family: 'Segoe UI', Helvetica, sans-serif; height: 100vh; display: flex; flex-direction: column; }
+        body { margin: 0; background-color: #ffffff; font-family: sans-serif; height: 100vh; display: flex; flex-direction: column; }
         
-        /* Контейнер вьювера */
         model-viewer {
             width: 100%;
-            flex-grow: 1;
+            height: 100%;
             background-color: #ffffff;
             --poster-color: #ffffff;
         }
 
-        /* Кнопка "Смотреть в AR" */
+        /* Кнопка AR */
         #ar-button {
             background-image: url(https://modelviewer.dev/assets/ic_view_in_ar_new_googblue_48dp.png);
             background-repeat: no-repeat;
@@ -29,10 +26,8 @@
             position: absolute;
             left: 50%;
             transform: translateX(-50%);
-            white-space: nowrap;
             bottom: 20px;
             padding: 0px 16px 0px 40px;
-            font-family: Roboto Regular, Helvetica Neue, sans-serif;
             font-size: 14px;
             color: #4285f4;
             height: 36px;
@@ -40,133 +35,80 @@
             border-radius: 18px;
             border: 1px solid #DADCE0;
             cursor: pointer;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-            z-index: 100; /* Чтобы была поверх галереи на мобильных */
+            box-shadow: 0 2px 4px rgba(0,0,0,0.25);
         }
 
-        /* Галерея моделей */
         .gallery {
+            position: absolute;
+            bottom: 70px; /* Чуть выше кнопки AR */
+            left: 50%;
+            transform: translateX(-50%);
             display: flex;
             gap: 10px;
-            padding: 15px;
-            background: #f8f8f8;
-            border-top: 1px solid #e7e7e7;
-            overflow-x: auto;
-            min-height: 80px;
-            align-items: center;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
 
         .thumb {
-            min-width: 90px;
-            height: 60px;
-            background: #fff;
+            width: 50px;
+            height: 50px;
             border: 2px solid #ddd;
-            border-radius: 6px;
+            border-radius: 50%;
             cursor: pointer;
-            display: flex;
+            background-size: cover;
+            background-position: center;
+            background-color: #eee;
+            display: flex; /* Для текста, если нет картинки */
             align-items: center;
             justify-content: center;
-            font-size: 12px;
+            font-size: 8px;
             text-align: center;
-            transition: 0.2s;
-            color: #333;
+            overflow: hidden;
         }
 
-        .thumb:hover { border-color: #e77600; } /* Оранжевый цвет Amazon */
-        .thumb.active { border-color: #e77600; background: #fffcf5; font-weight: bold; }
-        
-        /* Название текущей модели */
-        .info-panel {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            background: rgba(255,255,255,0.9);
-            padding: 8px 16px;
-            border-radius: 4px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            pointer-events: none;
-        }
+        .thumb.active { border-color: #e77600; box-shadow: 0 0 0 2px #fff inset; }
     </style>
 </head>
 <body>
 
-    <div class="info-panel">
-        <span id="model-name" style="font-weight: bold; color: #333;">Loading...</span>
-    </div>
-
     <model-viewer 
         id="viewer"
-        src="models/test.glb" 
+        src="models/ampoule.glb" 
         environment-image="textures/studio_small_03_1k.jpg" 
-        exposure="1.2" 
+        exposure="1.5" 
         shadow-intensity="1.5" 
-        shadow-softness="0.8"
+        shadow-softness="1"
         camera-controls 
         auto-rotate 
         ar 
         ar-modes="webxr scene-viewer quick-look">
         
-        <button slot="ar-button" id="ar-button">
-            View in AR
-        </button>
+        <button slot="ar-button" id="ar-button">View in AR</button>
     </model-viewer>
 
-    <div class="gallery" id="gallery-container">
+    <div class="gallery">
+        <div class="thumb active" onclick="loadModel('ampoule.glb', this)">Ampoule</div>
+        <div class="thumb" onclick="loadModel('test.glb', this)">Cube</div>
         </div>
 
     <script>
-        // 1. СПИСОК ВАШИХ МОДЕЛЕЙ (Проверьте, что имена файлов совпадают с GitHub!)
-        const modelList = [
-            { name: "Test Cube", file: "test.glb" },
-            { name: "Vaccine Ampoule", file: "ampoule.glb" },
-            { name: "Medical Syringe", file: "syringe.glb" }
-        ];
-
         const viewer = document.getElementById('viewer');
-        const gallery = document.getElementById('gallery-container');
-        const nameLabel = document.getElementById('model-name');
 
-        // Функция загрузки модели
-        const loadModel = (fileName, displayName) => {
-            // Строим полный путь: папка models + имя файла
-            const path = `models/${fileName}`;
+        // Функция переключения
+        window.loadModel = (fileName, btn) => {
+            // Меняем модель
+            viewer.src = `models/${fileName}`;
             
-            viewer.src = path;
-            viewer.iosSrc = path; // Для iPhone
-            nameLabel.textContent = displayName;
-
-            // Обновляем активную кнопку
-            document.querySelectorAll('.thumb').forEach(btn => {
-                btn.classList.remove('active');
-                if(btn.innerText === displayName) btn.classList.add('active');
-            });
+            // Переключаем подсветку кнопок
+            document.querySelectorAll('.thumb').forEach(t => t.classList.remove('active'));
+            btn.classList.add('active');
         };
 
-        // Генерация галереи
-        modelList.forEach((item, index) => {
-            const btn = document.createElement('div');
-            btn.className = 'thumb';
-            btn.innerText = item.name;
-            btn.onclick = () => loadModel(item.file, item.name);
-            gallery.appendChild(btn);
-        });
-
-        // 2. ПРОВЕРКА URL ДЛЯ QR-КОДОВ
-        // Если ссылка заканчивается на ?model=ampoule.glb, открываем её
-        const params = new URLSearchParams(window.location.search);
-        const targetModel = params.get('model');
-
-        if (targetModel) {
-            // Ищем имя модели по файлу
-            const found = modelList.find(m => m.file === targetModel);
-            const name = found ? found.name : "Custom Model";
-            loadModel(targetModel, name);
-        } else {
-            // Иначе грузим первую из списка
-            loadModel(modelList[0].file, modelList[0].name);
-        }
+        // Лог успеха (посмотри в консоль, там будет чисто)
+        viewer.addEventListener('load', () => console.log('Модель загружена успешно!'));
     </script>
 
 </body>
-
 </html>
