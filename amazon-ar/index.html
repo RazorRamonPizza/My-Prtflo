@@ -1,51 +1,36 @@
-HTML
-
 <!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Amazon 3D AR Portfolio</title>
+    <title>Amazon 3D Portfolio</title>
+    
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
     
     <style>
-        body {
-            margin: 0;
-            padding: 0;
-            background-color: #ffffff; /* Чисто белый фон как на Amazon */
-            font-family: 'Segoe UI', sans-serif;
-            overflow: hidden;
-        }
-
-        .container {
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-        }
-
-        /* Настройки самого 3D окна */
+        /* Сброс отступов и белый фон Amazon */
+        body { margin: 0; padding: 0; background-color: #ffffff; font-family: 'Segoe UI', Helvetica, sans-serif; height: 100vh; display: flex; flex-direction: column; }
+        
+        /* Контейнер вьювера */
         model-viewer {
             width: 100%;
             flex-grow: 1;
             background-color: #ffffff;
             --poster-color: #ffffff;
-            /* Улучшаем качество рендера */
-            --min-hotspot-opacity: 0;
         }
 
-        /* Кнопка AR (в стиле Amazon) */
+        /* Кнопка "Смотреть в AR" */
         #ar-button {
             background-image: url(https://modelviewer.dev/assets/ic_view_in_ar_new_googblue_48dp.png);
             background-repeat: no-repeat;
             background-size: 20px 20px;
             background-position: 12px 50%;
             background-color: #fff;
-            color: #4285f4;
             position: absolute;
             left: 50%;
             transform: translateX(-50%);
             white-space: nowrap;
-            bottom: 132px;
+            bottom: 20px;
             padding: 0px 16px 0px 40px;
             font-family: Roboto Regular, Helvetica Neue, sans-serif;
             font-size: 14px;
@@ -54,22 +39,25 @@ HTML
             line-height: 36px;
             border-radius: 18px;
             border: 1px solid #DADCE0;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            z-index: 100; /* Чтобы была поверх галереи на мобильных */
         }
 
-        /* Галерея внизу */
+        /* Галерея моделей */
         .gallery {
-            height: 100px;
             display: flex;
-            gap: 15px;
-            padding: 10px 20px;
+            gap: 10px;
+            padding: 15px;
             background: #f8f8f8;
-            border-top: 1px solid #eee;
+            border-top: 1px solid #e7e7e7;
             overflow-x: auto;
+            min-height: 80px;
             align-items: center;
         }
 
         .thumb {
-            min-width: 80px;
+            min-width: 90px;
             height: 60px;
             background: #fff;
             border: 2px solid #ddd;
@@ -78,37 +66,38 @@ HTML
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 11px;
+            font-size: 12px;
             text-align: center;
-            padding: 5px;
-            transition: all 0.2s;
+            transition: 0.2s;
+            color: #333;
         }
 
-        .thumb:hover { border-color: #ff9900; } /* Цвет Amazon */
-        .thumb.active { border-color: #ff9900; background: #fffcf5; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-
-        .model-title {
+        .thumb:hover { border-color: #e77600; } /* Оранжевый цвет Amazon */
+        .thumb.active { border-color: #e77600; background: #fffcf5; font-weight: bold; }
+        
+        /* Название текущей модели */
+        .info-panel {
             position: absolute;
             top: 20px;
             left: 20px;
-            background: rgba(255,255,255,0.8);
-            padding: 8px 15px;
-            border-radius: 20px;
-            font-weight: bold;
-            font-size: 14px;
+            background: rgba(255,255,255,0.9);
+            padding: 8px 16px;
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
             pointer-events: none;
         }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <div class="model-title" id="display-name">Загрузка...</div>
+    <div class="info-panel">
+        <span id="model-name" style="font-weight: bold; color: #333;">Loading...</span>
+    </div>
 
     <model-viewer 
-        id="main-viewer"
+        id="viewer"
         src="models/test.glb" 
-        environment-image="textures/studio_small_03_1k.exr" 
+        environment-image="textures/studio_small_03_1k.hdr" 
         exposure="1.2" 
         shadow-intensity="1.5" 
         shadow-softness="0.8"
@@ -118,60 +107,65 @@ HTML
         ar-modes="webxr scene-viewer quick-look">
         
         <button slot="ar-button" id="ar-button">
-            Посмотреть в комнате (AR)
+            View in AR
         </button>
     </model-viewer>
 
     <div class="gallery" id="gallery-container">
         </div>
-</div>
 
-<script>
-    // 1. НАСТРОЙКА ТВОИХ МОДЕЛЕЙ
-    // Просто добавляй сюда новые файлы, когда закинешь их в папку models
-    const myModels = [
-        { name: "Тестовая модель", file: "test.glb" },
-        { name: "Ампула Вакцины", file: "ampoule.glb" },
-        { name: "Шприц", file: "syringe.glb" }
-    ];
+    <script>
+        // 1. СПИСОК ВАШИХ МОДЕЛЕЙ (Проверьте, что имена файлов совпадают с GitHub!)
+        const modelList = [
+            { name: "Test Cube", file: "test.glb" },
+            { name: "Vaccine Ampoule", file: "ampoule.glb" },
+            { name: "Medical Syringe", file: "syringe.glb" }
+        ];
 
-    const viewer = document.getElementById('main-viewer');
-    const nameLabel = document.getElementById('display-name');
-    const gallery = document.getElementById('gallery-container');
+        const viewer = document.getElementById('viewer');
+        const gallery = document.getElementById('gallery-container');
+        const nameLabel = document.getElementById('model-name');
 
-    // Функция переключения модели
-    function switchModel(fileName, displayName, element) {
-        const fullPath = "models/" + fileName;
-        viewer.src = fullPath;
-        nameLabel.textContent = displayName;
+        // Функция загрузки модели
+        const loadModel = (fileName, displayName) => {
+            // Строим полный путь: папка models + имя файла
+            const path = `models/${fileName}`;
+            
+            viewer.src = path;
+            viewer.iosSrc = path; // Для iPhone
+            nameLabel.textContent = displayName;
 
-        // Визуальное выделение в галерее
-        document.querySelectorAll('.thumb').forEach(t => t.classList.remove('active'));
-        if (element) element.classList.add('active');
-    }
+            // Обновляем активную кнопку
+            document.querySelectorAll('.thumb').forEach(btn => {
+                btn.classList.remove('active');
+                if(btn.innerText === displayName) btn.classList.add('active');
+            });
+        };
 
-    // Создаем кнопки галереи
-    myModels.forEach((m, index) => {
-        const btn = document.createElement('div');
-        btn.className = 'thumb';
-        if (index === 0) btn.classList.add('active'); // Выделяем первую
-        btn.innerHTML = `<div>${m.name}</div>`;
-        btn.onclick = () => switchModel(m.file, m.name, btn);
-        gallery.appendChild(btn);
-    });
+        // Генерация галереи
+        modelList.forEach((item, index) => {
+            const btn = document.createElement('div');
+            btn.className = 'thumb';
+            btn.innerText = item.name;
+            btn.onclick = () => loadModel(item.file, item.name);
+            gallery.appendChild(btn);
+        });
 
-    // 2. ЛОГИКА ДЛЯ QR-КОДОВ
-    // Если ссылка содержит ?model=name.glb, загружаем её сразу
-    const params = new URLSearchParams(window.location.search);
-    const modelFromUrl = params.get('model');
-    
-    if (modelFromUrl) {
-        switchModel(modelFromUrl, modelFromUrl, null);
-    } else {
-        // Загружаем первую из списка по умолчанию
-        switchModel(myModels[0].file, myModels[0].name, null);
-    }
-</script>
+        // 2. ПРОВЕРКА URL ДЛЯ QR-КОДОВ
+        // Если ссылка заканчивается на ?model=ampoule.glb, открываем её
+        const params = new URLSearchParams(window.location.search);
+        const targetModel = params.get('model');
+
+        if (targetModel) {
+            // Ищем имя модели по файлу
+            const found = modelList.find(m => m.file === targetModel);
+            const name = found ? found.name : "Custom Model";
+            loadModel(targetModel, name);
+        } else {
+            // Иначе грузим первую из списка
+            loadModel(modelList[0].file, modelList[0].name);
+        }
+    </script>
 
 </body>
 </html>
